@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Postman environment (contains keys/credentials)
+postman/*.postman_environment.json

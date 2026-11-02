@@ -1,0 +1,197 @@
+{
+  "info": {
+    "name": "Kaiko Kart API",
+    "description": "Kaiko Kart Next.js API.\n\n1. Select the **Kaiko Kart - Local** environment and set `email` / `password` for a Supabase Auth user.\n2. Run **Auth > Login**. It stores `accessToken`, which every API request sends as a Bearer token.\n3. Tokens expire after about 1 hour. Run **Auth > Refresh Token** or Login again.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login succeeded', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "if (body.access_token) {",
+                  "  pm.environment.set('accessToken', body.access_token);",
+                  "  pm.environment.set('refreshToken', body.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{supabaseKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=password",
+              "host": ["{{supabaseUrl}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [{ "key": "grant_type", "value": "password" }]
+            },
+            "description": "Signs in with Supabase Auth (email + password) and saves the access and refresh tokens to the environment."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Refresh succeeded', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "if (body.access_token) {",
+                  "  pm.environment.set('accessToken', body.access_token);",
+                  "  pm.environment.set('refreshToken', body.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{supabaseKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=refresh_token",
+              "host": ["{{supabaseUrl}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [{ "key": "grant_type", "value": "refresh_token" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] },
+        "description": "Public. Returns API status."
+      }
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json().data;",
+                  "if (Array.isArray(data) && data.length) pm.environment.set('categoryId', data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] },
+            "description": "Active categories ordered by display_order. Saves the first category's id as `categoryId`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const products = pm.response.json().data?.products;",
+                  "if (Array.isArray(products) && products.length) pm.environment.set('productId', products[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products?page=1&limit=20&sort=created_at&order=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number (default 1)" },
+                { "key": "limit", "value": "20", "description": "1-100 (default 20)" },
+                { "key": "sort", "value": "created_at", "description": "name | price | created_at" },
+                { "key": "order", "value": "desc", "description": "asc | desc" },
+                { "key": "category_id", "value": "{{categoryId}}", "description": "Filter by category UUID", "disabled": true },
+                { "key": "q", "value": "", "description": "Search name or SKU (max 100 chars)", "disabled": true },
+                { "key": "store_id", "value": "", "description": "Include store inventory for this store UUID", "disabled": true }
+              ]
+            },
+            "description": "Paginated active products with images. Saves the first product's id as `productId`."
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "{{productId}}"]
+            },
+            "description": "Single active product with category, images and per-store inventory. Run List Products first to populate `productId`."
+          }
+        }
+      ]
+    }
+  ]
+}
