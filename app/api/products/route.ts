@@ -1,3 +1,4 @@
+import { unstable_rethrow } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 
@@ -156,6 +157,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Products API error:", error);
 
     return NextResponse.json(

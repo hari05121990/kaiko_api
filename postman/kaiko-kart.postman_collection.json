@@ -6,7 +6,13 @@
   },
   "auth": {
     "type": "bearer",
-    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
   },
   "item": [
     {
@@ -31,11 +37,19 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
-              { "key": "apikey", "value": "{{supabaseKey}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "apikey",
+                "value": "{{supabaseKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -43,9 +57,20 @@
             },
             "url": {
               "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=password",
-              "host": ["{{supabaseUrl}}"],
-              "path": ["auth", "v1", "token"],
-              "query": [{ "key": "grant_type", "value": "password" }]
+              "host": [
+                "{{supabaseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "v1",
+                "token"
+              ],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
             },
             "description": "Signs in with Supabase Auth (email + password) and saves the access and refresh tokens to the environment."
           }
@@ -69,11 +94,19 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
-              { "key": "apikey", "value": "{{supabaseKey}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "apikey",
+                "value": "{{supabaseKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -81,10 +114,193 @@
             },
             "url": {
               "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=refresh_token",
-              "host": ["{{supabaseUrl}}"],
-              "path": ["auth", "v1", "token"],
-              "query": [{ "key": "grant_type", "value": "refresh_token" }]
+              "host": [
+                "{{supabaseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "v1",
+                "token"
+              ],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "refresh_token"
+                }
+              ]
             }
+          }
+        },
+        {
+          "name": "Sign Up",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "const session = pm.response.json().data?.session;",
+                  "if (session?.access_token) {",
+                  "  pm.environment.set(\"accessToken\", session.access_token);",
+                  "  pm.environment.set(\"refreshToken\", session.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"full_name\": \"Ravi Kumar\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/signup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signup"
+              ]
+            },
+            "description": "Creates an already-confirmed Supabase Auth user (no confirmation email) and signs in. full_name 2-120 chars, password 8-72 chars. Saves accessToken/refreshToken from the returned session. Existing email returns 409; validation errors return 422."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Always returns a generic 200 so accounts cannot be enumerated. Redirects to NEXT_PUBLIC_SITE_URL/reset-password when set."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewPassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Requires a recovery session (the access token from the Supabase recovery link). Password 8-72 chars."
+          }
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Signs out the current session. Run Auth > Login again afterwards."
           }
         }
       ]
@@ -96,14 +312,27 @@
           "listen": "test",
           "script": {
             "type": "text/javascript",
-            "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"]
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
           }
         }
       ],
       "request": {
-        "auth": { "type": "noauth" },
+        "auth": {
+          "type": "noauth"
+        },
         "method": "GET",
-        "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] },
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "health"
+          ]
+        },
         "description": "Public. Returns API status."
       }
     },
@@ -127,7 +356,16 @@
           ],
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            },
             "description": "Active categories ordered by display_order. Saves the first category's id as `categoryId`."
           }
         }
@@ -155,16 +393,52 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/products?page=1&limit=20&sort=created_at&order=desc",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
               "query": [
-                { "key": "page", "value": "1", "description": "Page number (default 1)" },
-                { "key": "limit", "value": "20", "description": "1-100 (default 20)" },
-                { "key": "sort", "value": "created_at", "description": "name | price | created_at" },
-                { "key": "order", "value": "desc", "description": "asc | desc" },
-                { "key": "category_id", "value": "{{categoryId}}", "description": "Filter by category UUID", "disabled": true },
-                { "key": "q", "value": "", "description": "Search name or SKU (max 100 chars)", "disabled": true },
-                { "key": "store_id", "value": "", "description": "Include store inventory for this store UUID", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "1-100 (default 20)"
+                },
+                {
+                  "key": "sort",
+                  "value": "created_at",
+                  "description": "name | price | created_at"
+                },
+                {
+                  "key": "order",
+                  "value": "desc",
+                  "description": "asc | desc"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{categoryId}}",
+                  "description": "Filter by category UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "q",
+                  "value": "",
+                  "description": "Search name or SKU (max 100 chars)",
+                  "disabled": true
+                },
+                {
+                  "key": "store_id",
+                  "value": "",
+                  "description": "Include store inventory for this store UUID",
+                  "disabled": true
+                }
               ]
             },
             "description": "Paginated active products with images. Saves the first product's id as `productId`."
@@ -177,7 +451,9 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"]
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
               }
             }
           ],
@@ -185,10 +461,2891 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/products/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}"
+              ]
             },
             "description": "Single active product with category, images and per-store inventory. Run List Products first to populate `productId`."
+          }
+        },
+        {
+          "name": "Featured Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products/featured?limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "featured"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Default 10, 1-30"
+                }
+              ]
+            },
+            "description": "Active products with is_featured = true, newest first."
+          }
+        },
+        {
+          "name": "Search Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?q=rice&sort=newest&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "rice",
+                  "description": "Matches name, description or SKU (max 100 chars)"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{categoryId}}",
+                  "description": "Filter by category UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "newest",
+                  "description": "newest | price_asc | price_desc | name_asc"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Default 1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Default 20, 1-50"
+                }
+              ]
+            },
+            "description": "Returns `{ items, pagination }`. Invalid parameters return 422."
+          }
+        },
+        {
+          "name": "Related Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}/related",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}",
+                "related"
+              ]
+            },
+            "description": "Up to 8 other active products in the same category."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "description": "Requires a customer Bearer token.",
+      "item": [
+        {
+          "name": "Get Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const d = pm.response.json().data;",
+                  "const row = Array.isArray(d) ? d[0] : d;",
+                  "const cartItemIdValue = row && row.id;",
+                  "if (cartItemIdValue) pm.environment.set(\"cartItemId\", cartItemIdValue);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/cart",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            },
+            "description": "Cart items with product details, newest first. Saves the first item id as `cartItemId`."
+          }
+        },
+        {
+          "name": "Add Item to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "const d = pm.response.json().data;",
+                  "const row = Array.isArray(d) ? d[0] : d;",
+                  "const cartItemIdValue = row && row.id;",
+                  "if (cartItemIdValue) pm.environment.set(\"cartItemId\", cartItemIdValue);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{testProductId}}\",\n  \"store_id\": \"{{storeId}}\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "items"
+              ]
+            },
+            "description": "quantity 1-99 (default 1); store_id optional. Adding a product already in the cart for the same store increases its quantity and returns 200 instead of 201."
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items/{{cartItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "items",
+                "{{cartItemId}}"
+              ]
+            },
+            "description": "Sets the quantity (1-99)."
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items/{{cartItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "items",
+                "{{cartItemId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checkout",
+      "description": "Two ways to order: Checkout - Pickup / Home Delivery send items directly to customer_checkout; Customer > Orders > Place Order from Cart checks out the cart for one store. Use Checkout Preview first to see the points total.",
+      "item": [
+        {
+          "name": "Checkout Preview",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"store_id\": \"{{storeId}}\",\n  \"fulfilment_type\": \"PICKUP\",\n  \"address_id\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout/preview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout",
+                "preview"
+              ]
+            },
+            "description": "Prices the cart items for store_id in reward points. Returns items, total_points, available_points, points_shortfall and can_checkout. fulfilment_type: PICKUP | HOME_DELIVERY (address_id required for HOME_DELIVERY). Empty cart for the store returns 400; unavailable products return 409. Add items with Cart > Add Item to Cart first."
+          }
+        },
+        {
+          "name": "Checkout - Pickup",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// A fresh key per send. Re-send with the SAME key (disable this line) to test idempotency.",
+                  "pm.environment.set(\"idempotencyKey\", \"checkout-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "const d = pm.response.json().data;",
+                  "const row = Array.isArray(d) ? d[0] : (d && d.orders ? d.orders[0] : d);",
+                  "const id = row && (row.order_id || row.id);",
+                  "if (id) pm.environment.set(\"orderId\", id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"store_id\": \"{{storeId}}\",\n  \"items\": [\n    {\n      \"product_id\": \"{{testProductId}}\",\n      \"quantity\": 1\n    }\n  ],\n  \"fulfilment_type\": \"PICKUP\",\n  \"address_id\": null,\n  \"customer_notes\": \"Please pack carefully\",\n  \"idempotency_key\": \"{{idempotencyKey}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Checkout - Home Delivery",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// A fresh key per send. Re-send with the SAME key (disable this line) to test idempotency.",
+                  "pm.environment.set(\"idempotencyKey\", \"checkout-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "const d = pm.response.json().data;",
+                  "const row = Array.isArray(d) ? d[0] : (d && d.orders ? d.orders[0] : d);",
+                  "const id = row && (row.order_id || row.id);",
+                  "if (id) pm.environment.set(\"orderId\", id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"store_id\": \"{{storeId}}\",\n  \"items\": [\n    {\n      \"product_id\": \"{{testProductId}}\",\n      \"quantity\": 1\n    }\n  ],\n  \"fulfilment_type\": \"HOME_DELIVERY\",\n  \"address_id\": \"{{addressId}}\",\n  \"customer_notes\": \"Call before delivery\",\n  \"idempotency_key\": \"{{idempotencyKey}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            },
+            "description": "Requires a saved address: run Customer > Addresses > Add Address or List My Addresses first."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer",
+      "description": "Phase 1 customer account APIs. All require a customer Bearer token (run Auth > Login first).",
+      "item": [
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Get My Profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "profile"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update My Profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"full_name\": \"Ravi Kumar\",\n  \"address\": \"Flat 12, Sunrise Apartments, MG Road\",\n  \"city\": \"Hyderabad\",\n  \"state\": \"Telangana\",\n  \"pincode\": \"500001\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "profile"
+                  ]
+                },
+                "description": "full_name is required. address, city, state, pincode are optional. Any other key (mobile, email, role, status...) is rejected with 400."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get My Wallet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/customer/wallet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "wallet"
+              ]
+            },
+            "description": "Returns id, balance, created_at, updated_at (balance 0 when no wallet exists yet)."
+          }
+        },
+        {
+          "name": "Get My Wallet Transactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/customer/wallet/transactions?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "wallet",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Default 1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Default 20, 1-100"
+                }
+              ]
+            },
+            "description": "Reward transactions for your wallet, newest first. Returns `{ items, pagination }`."
+          }
+        },
+        {
+          "name": "Get My Reward History",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/customer/rewards?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "rewards"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Default 1, min 1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Default 20, 1-100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Addresses",
+          "item": [
+            {
+              "name": "List My Addresses",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const id = row && (row.id || row.address_id);",
+                      "if (id) pm.environment.set(\"addressId\", id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/addresses",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "addresses"
+                  ]
+                },
+                "description": "Saves the first address id as addressId."
+              }
+            },
+            {
+              "name": "Add Address",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const id = row && (row.id || row.address_id);",
+                      "if (id) pm.environment.set(\"addressId\", id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"recipient_name\": \"Ravi Kumar\",\n  \"mobile\": \"9876543210\",\n  \"address_line1\": \"Flat 12, Sunrise Apartments\",\n  \"address_line2\": \"MG Road\",\n  \"landmark\": \"Near City Mall\",\n  \"city\": \"Hyderabad\",\n  \"state\": \"Telangana\",\n  \"pincode\": \"500001\",\n  \"address_name\": \"Home\",\n  \"is_default\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/addresses",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "addresses"
+                  ]
+                },
+                "description": "Required: address_name, recipient_name (2-120), mobile (7-20 chars), address_line1 (3-200), city, state, pincode (5-10 digits). Optional: address_line2, landmark (nullable), is_default (default false). Validation errors return 422."
+              }
+            },
+            {
+              "name": "Update Address",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"address_line2\": \"MG Road, 2nd Floor\",\n  \"landmark\": \"Opposite City Mall\",\n  \"is_default\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/addresses/{{addressId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "addresses",
+                    "{{addressId}}"
+                  ]
+                },
+                "description": "Partial update: send any of address_name, recipient_name, mobile, address_line1, address_line2, landmark, city, state, pincode, is_default (at least one). Unknown keys and an empty body return 422."
+              }
+            },
+            {
+              "name": "Set Default Address",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/addresses/{{addressId}}/default",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "addresses",
+                    "{{addressId}}",
+                    "default"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete Address",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/addresses/{{addressId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "addresses",
+                    "{{addressId}}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "List My Orders",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : (d && Array.isArray(d.items) ? d.items[0] : (d && d.orders ? d.orders[0] : d));",
+                      "const id = row && (row.order_id || row.id);",
+                      "if (id) pm.environment.set(\"orderId\", id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/orders?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "orders"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Default 1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Default 20, 1-50"
+                    }
+                  ]
+                },
+                "description": "Newest first. Returns `{ items, pagination }`. Saves the first order id as `orderId`."
+              }
+            },
+            {
+              "name": "Place Order from Cart",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// A fresh key per send. Disable this line and re-send to test idempotency.",
+                      "pm.environment.set(\"idempotencyKey\", \"order-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : (d && Array.isArray(d.items) ? d.items[0] : (d && d.orders ? d.orders[0] : d));",
+                      "const id = row && (row.order_id || row.id);",
+                      "if (id) pm.environment.set(\"orderId\", id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_id\": \"{{storeId}}\",\n  \"fulfilment_type\": \"PICKUP\",\n  \"address_id\": null,\n  \"customer_notes\": \"Please pack carefully\",\n  \"idempotency_key\": \"{{idempotencyKey}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "orders"
+                  ]
+                },
+                "description": "Checks out every cart item for store_id through customer_checkout, then clears that store's cart. fulfilment_type: PICKUP | HOME_DELIVERY (set address_id to {{addressId}} for HOME_DELIVERY). Empty cart returns 400; insufficient points, stock or address problems return 400 with a message."
+              }
+            },
+            {
+              "name": "Get Order Details",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/orders/{{orderId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "orders",
+                    "{{orderId}}"
+                  ]
+                },
+                "description": "Order with `items` (order_items) and `status_history`."
+              }
+            },
+            {
+              "name": "Track Order Status",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/orders/{{orderId}}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "orders",
+                    "{{orderId}}",
+                    "status"
+                  ]
+                },
+                "description": "order_status, delivery_status, fulfilment_type and the status `history` timeline."
+              }
+            },
+            {
+              "name": "Cancel Order",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Ordered by mistake\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/orders/{{orderId}}/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "orders",
+                    "{{orderId}}",
+                    "cancel"
+                  ]
+                },
+                "description": "Calls cancel_order with p_items_physically_returned = false (never client-controlled)."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Wishlist",
+          "item": [
+            {
+              "name": "List My Wishlist",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/wishlist",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "wishlist"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Add to Wishlist",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"product_id\": \"{{testProductId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/wishlist",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "wishlist"
+                  ]
+                },
+                "description": "Idempotent: adding a product already in the wishlist is ignored."
+              }
+            },
+            {
+              "name": "Remove from Wishlist",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/api/customer/wishlist/{{testProductId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "customer",
+                    "wishlist",
+                    "{{testProductId}}"
+                  ]
+                },
+                "description": "The path id is the product id, not a wishlist row id."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "Staff and admin APIs. Log in as a user with a SUPER_ADMIN, ADMIN or STAFF role; roles come from user_roles, never from the request. Customer-role tokens get 403.",
+      "item": [
+        {
+          "name": "Dashboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/dashboard?low_stock=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "store_id",
+                  "value": "{{storeId}}",
+                  "description": "Store UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "low_stock",
+                  "value": "5",
+                  "description": "Low stock threshold (default 5)"
+                }
+              ]
+            },
+            "description": "Staff and admins. Order counts and low-stock items, scoped to the caller's stores."
+          }
+        },
+        {
+          "name": "Customers",
+          "description": "Global admin only.",
+          "item": [
+            {
+              "name": "List Customers",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                      "const d = pm.response.json().data;",
+                      "const row = d && Array.isArray(d.customers) ? d.customers[0] : (Array.isArray(d) ? d[0] : d);",
+                      "const customerIdValue = row && (row.id || row.customer_id);",
+                      "if (customerIdValue) pm.environment.set(\"customerId\", customerIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/customers?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "customers"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Default 1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Default 20, 1-100"
+                    },
+                    {
+                      "key": "q",
+                      "value": "",
+                      "description": "Search (max 100 chars)",
+                      "disabled": true
+                    },
+                    {
+                      "key": "status",
+                      "value": "ACTIVE",
+                      "description": "ACTIVE | INACTIVE | BLOCKED",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Global admin only. Saves the first customer id as `customerId`."
+              }
+            },
+            {
+              "name": "Create Customer",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.environment.set(\"newCustomerEmail\", \"customer+\" + Date.now() + \"@example.com\");"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const customerIdValue = row && (row.id || row.customer_id);",
+                      "if (customerIdValue) pm.environment.set(\"customerId\", customerIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"full_name\": \"Priya Sharma\",\n  \"mobile\": \"9876500001\",\n  \"email\": \"{{newCustomerEmail}}\",\n  \"password\": \"Welcome@123\",\n  \"address\": \"House 4, Lake View Colony\",\n  \"city\": \"Hyderabad\",\n  \"state\": \"Telangana\",\n  \"pincode\": \"500032\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/customers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "customers"
+                  ]
+                },
+                "description": "Global admin only. Creates the Auth user and profile. Required: full_name, mobile, email, password (8-72). A fresh email is generated per send. Duplicate email returns 409."
+              }
+            },
+            {
+              "name": "Get Customer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/customers/{{customerId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "customers",
+                    "{{customerId}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Customer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"full_name\": \"Priya Sharma\",\n  \"mobile\": \"9876500002\",\n  \"city\": \"Secunderabad\",\n  \"pincode\": \"500003\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/customers/{{customerId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "customers",
+                    "{{customerId}}"
+                  ]
+                },
+                "description": "At least one of full_name, mobile, address, city, state, pincode. null or \"\" clears address/city/state/pincode. Email, role, status and wallet are not editable here."
+              }
+            },
+            {
+              "name": "Update Customer Status",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"INACTIVE\",\n  \"reason\": \"Requested by customer\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/customers/{{customerId}}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "customers",
+                    "{{customerId}}",
+                    "status"
+                  ]
+                },
+                "description": "status: ACTIVE | INACTIVE | BLOCKED. reason is required."
+              }
+            },
+            {
+              "name": "Get Customer Wallet",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/customers/{{customerId}}/wallet",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "customers",
+                    "{{customerId}}",
+                    "wallet"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Customer Reward History",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                      "const d = pm.response.json().data;",
+                      "const row = d && Array.isArray(d.transactions) ? d.transactions[0] : (Array.isArray(d) ? d[0] : d);",
+                      "const rewardTransactionIdValue = row && row.id;",
+                      "if (rewardTransactionIdValue) pm.environment.set(\"rewardTransactionId\", rewardTransactionIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/customers/{{customerId}}/rewards?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "customers",
+                    "{{customerId}}",
+                    "rewards"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Default 1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Default 20, 1-100"
+                    },
+                    {
+                      "key": "type",
+                      "value": "CREDIT",
+                      "description": "CREDIT | DEBIT | REVERSAL | ADJUSTMENT",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Returns `{ wallet_id, balance, transactions, pagination }`. Saves the first transaction id as `rewardTransactionId`."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rewards",
+          "description": "Global admin only. Each request generates a fresh idempotency key.",
+          "item": [
+            {
+              "name": "Credit Purchase Points",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// A fresh key per send. Disable this line and re-send to test idempotency.",
+                      "pm.environment.set(\"idempotencyKey\", \"credit-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const rewardTransactionIdValue = row && (row.transaction_id || row.id);",
+                      "if (rewardTransactionIdValue) pm.environment.set(\"rewardTransactionId\", rewardTransactionIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customer_id\": \"{{customerId}}\",\n  \"purchase_amount\": 1250.5,\n  \"description\": \"In-store purchase\",\n  \"idempotency_key\": \"{{idempotencyKey}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/rewards/credit",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "rewards",
+                    "credit"
+                  ]
+                },
+                "description": "Global admin only. Points are derived from purchase_amount in the database. Optional reference_id (UUID). Cannot target your own account."
+              }
+            },
+            {
+              "name": "Adjust Points",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// A fresh key per send. Disable this line and re-send to test idempotency.",
+                      "pm.environment.set(\"idempotencyKey\", \"adjust-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const rewardTransactionIdValue = row && (row.transaction_id || row.id);",
+                      "if (rewardTransactionIdValue) pm.environment.set(\"rewardTransactionId\", rewardTransactionIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customer_id\": \"{{customerId}}\",\n  \"direction\": \"CREDIT\",\n  \"points\": 50,\n  \"reason\": \"Goodwill adjustment\",\n  \"idempotency_key\": \"{{idempotencyKey}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/rewards/adjust",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "rewards",
+                    "adjust"
+                  ]
+                },
+                "description": "direction: CREDIT | DEBIT. points 1-1,000,000. Insufficient balance returns 409."
+              }
+            },
+            {
+              "name": "Reverse Transaction",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// A fresh key per send. Disable this line and re-send to test idempotency.",
+                      "pm.environment.set(\"idempotencyKey\", \"reverse-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_id\": \"{{rewardTransactionId}}\",\n  \"reason\": \"Credited in error\",\n  \"idempotency_key\": \"{{idempotencyKey}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/rewards/reverse",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "rewards",
+                    "reverse"
+                  ]
+                },
+                "description": "Reverses a reward transaction. Run Credit Purchase Points or Get Customer Reward History first to populate `rewardTransactionId`."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "List Orders",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                      "const d = pm.response.json().data;",
+                      "const row = d && Array.isArray(d.orders) ? d.orders[0] : (Array.isArray(d) ? d[0] : d);",
+                      "const orderIdValue = row && (row.id || row.order_id);",
+                      "if (orderIdValue) pm.environment.set(\"orderId\", orderIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/orders?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "orders"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Default 1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Default 20, 1-100"
+                    },
+                    {
+                      "key": "status",
+                      "value": "PENDING",
+                      "description": "PENDING | CONFIRMED | READY_FOR_PICKUP | OUT_FOR_DELIVERY | COMPLETED | CANCELLED | REFUNDED",
+                      "disabled": true
+                    },
+                    {
+                      "key": "fulfilment_type",
+                      "value": "PICKUP",
+                      "description": "PICKUP | HOME_DELIVERY",
+                      "disabled": true
+                    },
+                    {
+                      "key": "store_id",
+                      "value": "{{storeId}}",
+                      "description": "Store UUID",
+                      "disabled": true
+                    },
+                    {
+                      "key": "customer_id",
+                      "value": "{{customerId}}",
+                      "description": "Customer UUID",
+                      "disabled": true
+                    },
+                    {
+                      "key": "q",
+                      "value": "",
+                      "description": "Search (max 100 chars)",
+                      "disabled": true
+                    },
+                    {
+                      "key": "from",
+                      "value": "2026-01-01",
+                      "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                      "disabled": true
+                    },
+                    {
+                      "key": "to",
+                      "value": "2026-12-31",
+                      "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Staff and admins. Store staff see only their stores' orders. Saves the first order id as `orderId`."
+              }
+            },
+            {
+              "name": "Get Order",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/orders/{{orderId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "orders",
+                    "{{orderId}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Order History",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/orders/{{orderId}}/history",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "orders",
+                    "{{orderId}}",
+                    "history"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Order Status",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CONFIRMED\",\n  \"remarks\": \"Confirmed by store\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/orders/{{orderId}}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "orders",
+                    "{{orderId}}",
+                    "status"
+                  ]
+                },
+                "description": "status: CONFIRMED | READY_FOR_PICKUP | OUT_FOR_DELIVERY | COMPLETED. Transition rules are enforced in the database; cancellation goes through cancel_order."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Products",
+          "description": "Global admin only.",
+          "item": [
+            {
+              "name": "Create Product",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.environment.set(\"uniqueSuffix\", Date.now().toString());"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const adminProductIdValue = row && row.id;",
+                      "if (adminProductIdValue) pm.environment.set(\"adminProductId\", adminProductIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Basmati Rice 5kg {{uniqueSuffix}}\",\n  \"category_id\": \"{{categoryId}}\",\n  \"description\": \"Premium aged basmati rice\",\n  \"sku\": \"RICE-5KG-{{uniqueSuffix}}\",\n  \"price\": 649,\n  \"points_required\": 650,\n  \"is_featured\": false,\n  \"status\": \"DRAFT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "products"
+                  ]
+                },
+                "description": "Global admin only. Required: name, price. slug is derived from name when omitted. status: ACTIVE | INACTIVE | DRAFT. Saves the new id as `adminProductId`."
+              }
+            },
+            {
+              "name": "Update Product",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"price\": 599,\n  \"is_featured\": true,\n  \"description\": \"Premium aged basmati rice, 5kg pack\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products/{{adminProductId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "products",
+                    "{{adminProductId}}"
+                  ]
+                },
+                "description": "Any of category_id, name, slug, description, sku, price, points_required, is_featured (at least one). Use Update Product Status for status."
+              }
+            },
+            {
+              "name": "Update Product Status",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"ACTIVE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products/{{adminProductId}}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "products",
+                    "{{adminProductId}}",
+                    "status"
+                  ]
+                },
+                "description": "status: ACTIVE | INACTIVE | DRAFT."
+              }
+            },
+            {
+              "name": "Add Product Image",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const imageIdValue = row && row.id;",
+                      "if (imageIdValue) pm.environment.set(\"imageId\", imageIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"image_path\": \"products/basmati-rice-5kg.jpg\",\n  \"alt_text\": \"Basmati Rice 5kg pack\",\n  \"display_order\": 0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products/{{adminProductId}}/images",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "products",
+                    "{{adminProductId}}",
+                    "images"
+                  ]
+                },
+                "description": "image_path is a storage object path or an https URL. Saves the new id as `imageId`."
+              }
+            },
+            {
+              "name": "Delete Product Image",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/products/{{adminProductId}}/images/{{imageId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "products",
+                    "{{adminProductId}}",
+                    "images",
+                    "{{imageId}}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Categories",
+          "description": "Global admin only.",
+          "item": [
+            {
+              "name": "Create Category",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.environment.set(\"uniqueSuffix\", Date.now().toString());"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const adminCategoryIdValue = row && row.id;",
+                      "if (adminCategoryIdValue) pm.environment.set(\"adminCategoryId\", adminCategoryIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Grocery Staples {{uniqueSuffix}}\",\n  \"description\": \"Rice, flour, pulses and oils\",\n  \"status\": \"ACTIVE\",\n  \"display_order\": 10\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "categories"
+                  ]
+                },
+                "description": "Global admin only. Required: name. Optional: slug (derived from name), description, image_path, status (ACTIVE | INACTIVE), display_order. Saves the new id as `adminCategoryId`."
+              }
+            },
+            {
+              "name": "Update Category",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"Everyday grocery staples\",\n  \"display_order\": 5\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/categories/{{adminCategoryId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "categories",
+                    "{{adminCategoryId}}"
+                  ]
+                },
+                "description": "At least one of name, slug, description, image_path, status, display_order."
+              }
+            },
+            {
+              "name": "Delete Category",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/categories/{{adminCategoryId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "categories",
+                    "{{adminCategoryId}}"
+                  ]
+                },
+                "description": "Returns 409 while the category still has products; set it INACTIVE instead."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stores",
+          "item": [
+            {
+              "name": "List Stores",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stores?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "stores"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Default 1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Default 20, 1-100"
+                    },
+                    {
+                      "key": "q",
+                      "value": "",
+                      "description": "Search (max 100 chars)",
+                      "disabled": true
+                    },
+                    {
+                      "key": "status",
+                      "value": "ACTIVE",
+                      "description": "ACTIVE | INACTIVE",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Staff and admins. Store staff see only their assigned stores."
+              }
+            },
+            {
+              "name": "Create Store",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.environment.set(\"storeCode\", \"HYD-\" + Date.now().toString().slice(-6));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                      "const d = pm.response.json().data;",
+                      "const row = Array.isArray(d) ? d[0] : d;",
+                      "const adminStoreIdValue = row && row.id;",
+                      "if (adminStoreIdValue) pm.environment.set(\"adminStoreId\", adminStoreIdValue);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_code\": \"{{storeCode}}\",\n  \"store_name\": \"Kaiko Kart Madhapur\",\n  \"address\": \"Plot 21, Hitech City Road\",\n  \"city\": \"Hyderabad\",\n  \"state\": \"Telangana\",\n  \"pincode\": \"500081\",\n  \"mobile\": \"9876500100\",\n  \"email\": \"madhapur@example.com\",\n  \"status\": \"ACTIVE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stores",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "stores"
+                  ]
+                },
+                "description": "Global admin only. Required: store_code (2-30 of A-Z 0-9 _ -), store_name. Saves the new id as `adminStoreId`."
+              }
+            },
+            {
+              "name": "Get Store",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stores/{{storeId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "stores",
+                    "{{storeId}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Store",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"store_name\": \"Kaiko Kart Madhapur (Main)\",\n  \"mobile\": \"9876500101\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stores/{{adminStoreId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "stores",
+                    "{{adminStoreId}}"
+                  ]
+                },
+                "description": "Global admin only. At least one store field. null or \"\" clears optional text fields."
+              }
+            },
+            {
+              "name": "Get Store Inventory",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stores/{{storeId}}/inventory?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "stores",
+                    "{{storeId}}",
+                    "inventory"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Default 1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Default 20, 1-100"
+                    },
+                    {
+                      "key": "is_available",
+                      "value": "true",
+                      "description": "true | false",
+                      "disabled": true
+                    },
+                    {
+                      "key": "low_stock",
+                      "value": "5",
+                      "description": "Only rows with stock_quantity at or below this value",
+                      "disabled": true
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Adjust Store Stock",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// A fresh key per send. Disable this line and re-send to test idempotency.",
+                      "pm.environment.set(\"idempotencyKey\", \"stock-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 501\", () => pm.response.to.have.status(501));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transaction_type\": \"STOCK_IN\",\n  \"quantity_change\": 25,\n  \"reason\": \"Weekly restock\",\n  \"idempotency_key\": \"{{idempotencyKey}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/stores/{{storeId}}/inventory/{{testProductId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "stores",
+                    "{{storeId}}",
+                    "inventory",
+                    "{{testProductId}}"
+                  ]
+                },
+                "description": "Validates the request, then returns 501 until an atomic inventory database function exists. transaction_type: STOCK_IN (positive) | STOCK_OUT (negative) | ADJUSTMENT."
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Inventory Transactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/inventory/transactions?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "inventory",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Default 1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Default 20, 1-100"
+                },
+                {
+                  "key": "store_id",
+                  "value": "{{storeId}}",
+                  "description": "Store UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "product_id",
+                  "value": "{{testProductId}}",
+                  "description": "Product UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "transaction_type",
+                  "value": "STOCK_IN",
+                  "description": "STOCK_IN | STOCK_OUT | ADJUSTMENT | ORDER_DEDUCTION | ORDER_REVERSAL",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-01-01",
+                  "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-12-31",
+                  "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reports",
+          "item": [
+            {
+              "name": "Sales Report",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 501\", () => pm.response.to.have.status(501));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/reports/sales",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "reports",
+                    "sales"
+                  ],
+                  "query": [
+                    {
+                      "key": "from",
+                      "value": "2026-01-01",
+                      "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                      "disabled": true
+                    },
+                    {
+                      "key": "to",
+                      "value": "2026-12-31",
+                      "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                      "disabled": true
+                    },
+                    {
+                      "key": "store_id",
+                      "value": "{{storeId}}",
+                      "description": "Store UUID",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Returns 501 until a sales reporting database function exists."
+              }
+            },
+            {
+              "name": "Orders Report",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/reports/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "reports",
+                    "orders"
+                  ],
+                  "query": [
+                    {
+                      "key": "from",
+                      "value": "2026-01-01",
+                      "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                      "disabled": true
+                    },
+                    {
+                      "key": "to",
+                      "value": "2026-12-31",
+                      "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                      "disabled": true
+                    },
+                    {
+                      "key": "store_id",
+                      "value": "{{storeId}}",
+                      "description": "Store UUID",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Order counts by status and fulfilment type for the period."
+              }
+            },
+            {
+              "name": "Rewards Report",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status 501\", () => pm.response.to.have.status(501));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/reports/rewards",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "reports",
+                    "rewards"
+                  ],
+                  "query": [
+                    {
+                      "key": "from",
+                      "value": "2026-01-01",
+                      "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                      "disabled": true
+                    },
+                    {
+                      "key": "to",
+                      "value": "2026-12-31",
+                      "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                      "disabled": true
+                    },
+                    {
+                      "key": "store_id",
+                      "value": "{{storeId}}",
+                      "description": "Store UUID",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Global admin only. Returns 501 until a rewards reporting database function exists."
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Audit Logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/audit-logs?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Default 1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Default 20, 1-100"
+                },
+                {
+                  "key": "action",
+                  "value": "",
+                  "description": "Uppercase action name, e.g. UPDATE_ORDER_STATUS",
+                  "disabled": true
+                },
+                {
+                  "key": "entity_type",
+                  "value": "",
+                  "description": "e.g. orders",
+                  "disabled": true
+                },
+                {
+                  "key": "entity_id",
+                  "value": "",
+                  "description": "Entity UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "admin_id",
+                  "value": "",
+                  "description": "Admin user UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2026-01-01",
+                  "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2026-12-31",
+                  "description": "YYYY-MM-DD (inclusive, UTC) or ISO datetime with offset",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Global admin only."
           }
         }
       ]

@@ -1,3 +1,4 @@
+import { unstable_rethrow } from "next/navigation";
 import { NextResponse } from "next/server";
 import { createClient, getAuthUser } from "@/lib/supabase/server";
 
@@ -41,6 +42,7 @@ export async function GET() {
       data,
     });
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Categories API error:", error);
 
     return NextResponse.json(
